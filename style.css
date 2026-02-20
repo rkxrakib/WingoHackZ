@@ -1,82 +1,45 @@
-:root {
-    --blue: #00d2ff;
-    --purple: #9d00ff;
-    --gold: #ffcc00;
-    --red: #ff3e3e;
-    --bg: rgba(6, 7, 14, 0.98);
-}
+:root { --glow: #00d2ff; --bg: rgba(10, 10, 15, 0.98); }
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+#game-frame { width: 100%; height: 100vh; border: none; }
 
-body, html { margin: 0; padding: 0; width: 100%; height: 100vh; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-#game-frame { width: 100%; height: 100%; border: none; }
-
-/* Main Glass Panel */
-.glass-panel {
-    position: absolute; top: 100px; left: 20px; width: 260px;
-    background: var(--bg); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px; z-index: 1000; box-shadow: 0 0 40px rgba(0,0,0,0.7);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
-}
-
-.drag-handle {
-    background: rgba(255,255,255,0.03); padding: 12px;
-    border-radius: 20px 20px 0 0; display: flex; justify-content: space-between;
-    cursor: move; border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.title { font-size: 11px; font-weight: 800; color: #fff; letter-spacing: 1px; }
-.live-tag { font-size: 8px; background: var(--red); padding: 2px 6px; border-radius: 4px; margin-right: 5px; animation: blink 1s infinite; }
-
-/* Floating Logo Style */
-.floating-logo {
+#mini-logo {
     position: absolute; top: 20px; left: 20px; width: 50px; height: 50px;
-    background: var(--bg); border: 2px solid var(--blue); border-radius: 50%;
-    z-index: 1001; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 20px var(--blue); animation: float 3s ease-in-out infinite;
+    border-radius: 50%; border: 2px solid var(--glow); cursor: pointer; z-index: 10001;
+    overflow: hidden; box-shadow: 0 0 15px var(--glow);
+}
+#mini-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+#main-box {
+    position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
+    width: 180px; background: var(--bg); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 15px; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-.floating-logo img { width: 30px; filter: drop-shadow(0 0 5px var(--blue)); }
-
-.pulse-ring {
-    position: absolute; width: 100%; height: 100%;
-    border: 2px solid var(--blue); border-radius: 50%;
-    animation: pulse 2s infinite;
+.header {
+    background: rgba(255,255,255,0.05); padding: 8px 12px;
+    border-radius: 15px 15px 0 0; cursor: grab;
+    display: flex; align-items: center; justify-content: space-between;
 }
+.dot { width: 6px; height: 6px; background: var(--glow); border-radius: 50%; animation: blink 1s infinite; }
+.title { font-size: 10px; font-weight: bold; color: #fff; letter-spacing: 1px; }
+.min-btn { background: none; border: none; color: #fff; cursor: pointer; font-size: 14px; }
 
-/* UI Components */
-.inner-body { padding: 20px; text-align: center; }
-.neo-input {
-    width: 100%; padding: 12px; background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-    color: #fff; font-size: 12px; margin-bottom: 15px; box-sizing: border-box;
-}
+.content { padding: 12px; text-align: center; }
+.input-sm { width: 100%; padding: 8px; background: #000; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 10px; margin-bottom: 8px; box-sizing: border-box; }
 
-.neo-btn {
-    width: 100%; padding: 12px; border: none; border-radius: 12px;
-    font-weight: 800; cursor: pointer; margin-bottom: 10px; transition: 0.3s;
-}
+.rem-box { font-size: 9px; color: #aaa; margin-bottom: 10px; text-align: left; }
+.btn-sm { width: 100%; padding: 8px; border-radius: 8px; border: none; font-weight: bold; font-size: 10px; cursor: pointer; margin-bottom: 5px; background: #333; color: #fff; }
+.btn-sm.blue { background: var(--glow); color: #000; }
+.btn-sm.gold { background: #ffcc00; color: #000; }
 
-.neo-btn.blue { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: #fff; }
-.neo-btn.gold { background: linear-gradient(90deg, #ffcc00, #ff8800); color: #000; }
-.neo-btn.green { background: #00ff88; color: #000; }
+#result-text { font-size: 26px; font-weight: 900; color: #fff; margin: 5px 0; text-shadow: 0 0 10px var(--glow); }
+.num-tag { font-size: 14px; color: var(--glow); background: rgba(0,210,255,0.1); padding: 3px; border-radius: 5px; border: 0.5px solid var(--glow); margin-bottom: 10px; }
 
-/* Predictions Style */
-#result-text { font-size: 36px; font-weight: 900; background: linear-gradient(#fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; }
-#lucky-num { font-family: monospace; color: var(--blue); background: rgba(0,210,255,0.1); padding: 5px; border-radius: 8px; }
+.timer-box { font-size: 9px; color: #fff; }
+.progress-bg { width: 100%; height: 3px; background: #222; border-radius: 5px; margin-top: 5px; overflow: hidden; }
+.progress-fill { height: 100%; width: 100%; background: var(--glow); transition: 1s linear; }
 
-/* Timer SVG */
-.timer-container { position: relative; margin: 20px auto; width: 70px; height: 70px; }
-svg { width: 70px; height: 70px; transform: rotate(-90deg); }
-circle { fill: none; stroke-width: 4; stroke: rgba(255,255,255,0.1); }
-#timer-progress { stroke: var(--blue); stroke-dasharray: 208; stroke-dashoffset: 208; transition: 1s linear; }
-#timer-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #fff; }
+#ai-status { font-size: 7px; color: #00ff87; margin-top: 8px; letter-spacing: 0.5px; }
+.warn-txt { font-size: 9px; color: #ff3e3e; margin-bottom: 10px; font-weight: bold; }
 
-/* Animations */
 @keyframes blink { 50% { opacity: 0; } }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-
-.scanner {
-    height: 2px; background: var(--blue); box-shadow: 0 0 10px var(--blue);
-    position: relative; animation: scan 2s infinite;
-}
-@keyframes scan { 0% { top: 0; } 100% { top: 40px; } }
