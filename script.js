@@ -1,125 +1,127 @@
-// --- CONFIGURATION ---
 const CONFIG = {
     key: "RKXRAKIB",
     depositUrl: "https://tkclub2.com/#/wallet/Recharge",
-    wingo1m: "https://tkclub2.com/#/home/AllLotteryGames/WinGo?id=1",
-    inviteCode: "84445206479"
+    wingoUrl: "https://tkclub2.com/#/home/AllLotteryGames/WinGo?id=1"
 };
 
-let isAuthorized = false;
-let currentMode = 30; // Default 30s
-let lastBlockId = -1;
+let isVerified = false;
 
-// --- SECURITY: PREVENT STEALING ---
-document.addEventListener('keydown', function(e) {
-    if(e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i')) e.preventDefault();
-    if(e.key === 'F12') e.preventDefault();
-});
-
-// --- DRAGGABLE BOX ---
-const box = document.getElementById('main-box');
-let isDragging = false, offset = [0,0];
-
-box.onmousedown = (e) => {
-    if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-    isDragging = true;
-    offset = [box.offsetLeft - e.clientX, box.offsetTop - e.clientY];
-};
-
-document.onmousemove = (e) => {
-    if(!isDragging) return;
-    box.style.left = (e.clientX + offset[0]) + 'px';
-    box.style.top = (e.clientY + offset[1]) + 'px';
-    box.style.transform = 'none';
-};
-document.onmouseup = () => isDragging = false;
-
-// --- APP LOGIC ---
-
-function handleLogin() {
-    const key = document.getElementById('passKey').value;
-    if(key === CONFIG.key) {
-        // Step 1: Check if user is on WinGo page
-        checkUrlAndProgress();
+// 1. Toggle Panel (Minimize/Maximize)
+function togglePanel(show) {
+    const mainBox = document.getElementById('main-box');
+    const miniLogo = document.getElementById('mini-logo');
+    
+    if(show) {
+        mainBox.style.display = 'block';
+        mainBox.style.opacity = '1';
+        mainBox.style.transform = 'scale(1) translateX(0)';
+        miniLogo.style.display = 'none';
     } else {
-        alert("INVALID SERVER KEY!");
+        mainBox.style.opacity = '0';
+        mainBox.style.transform = 'scale(0) translateX(-100px)';
+        setTimeout(() => {
+            mainBox.style.display = 'none';
+            miniLogo.style.display = 'flex';
+        }, 300);
     }
 }
 
-function checkUrlAndProgress() {
-    // Note: Browser security limits reading iframe URL if domain is different.
-    // In a real environment, this would be injected or run via a browser extension.
-    // We simulate the detection here.
-    
-    document.getElementById('login-view').style.display = 'none';
-    
-    // Redirect to Deposit if balance "not found"
-    document.getElementById('deposit-view').style.display = 'block';
+// 2. Authentication
+function checkAuth() {
+    const key = document.getElementById('passKey').value;
+    if(key === CONFIG.key) {
+        document.getElementById('auth-view').style.display = 'none';
+        document.getElementById('deposit-view').style.display = 'block';
+    } else {
+        alert("ACCESS DENIED: WRONG SERVER KEY");
+    }
 }
 
-function redirectToDeposit() {
-    window.open(CONFIG.depositUrl, '_blank');
-    // After clicking deposit, we allow them to see signals (Simulating activation)
+// 3. Deposit Inside Same Iframe
+function openDepositInside() {
+    const frame = document.getElementById('game-frame');
+    frame.src = CONFIG.depositUrl;
+    alert("Please deposit minimum 500 BDT. After payment, enter your User ID or Txn ID here to verify.");
+}
+
+// 4. Real-Look Verification System
+function verifyDeposit() {
+    const txn = document.getElementById('txnId').value;
+    if(txn.length < 5) {
+        alert("Please enter a valid Transaction ID or User ID");
+        return;
+    }
+
+    document.querySelector('.deposit-box').style.display = 'none';
+    document.getElementById('verify-loader').style.display = 'block';
+
+    // Simulate Server Verification
     setTimeout(() => {
-        activateSignalUI();
-    }, 2000);
-}
-
-function activateSignalUI() {
-    document.getElementById('deposit-view').style.display = 'none';
-    document.getElementById('display-area').style.display = 'block';
-    isAuthorized = true;
-    startSignalEngine();
-}
-
-function startSignalEngine() {
-    setInterval(() => {
-        if(!isAuthorized) return;
-
-        const now = new Date();
-        const seconds = now.getSeconds();
+        // Logic: Here you can connect a real API. For now, it's a simulated "Success"
+        isVerified = true;
+        document.getElementById('verify-loader').innerHTML = "<p style='color:#00ff88'>DEPOSIT VERIFIED! REDIRECTING...</p>";
         
-        // Logic to switch between 30s and 60s
-        // We simulate detection based on current URL (manual toggle or auto)
-        let timeframe = (window.location.href.includes("id=1")) ? 60 : 30;
-        currentMode = timeframe;
-        document.getElementById('game-mode').innerText = "WINGO " + currentMode + "S MODE";
+        setTimeout(() => {
+            const frame = document.getElementById('game-frame');
+            frame.src = CONFIG.wingoUrl;
+            showSignalUI();
+        }, 2000);
+    }, 4000);
+}
 
-        const remains = currentMode - (seconds % currentMode);
-        const blockId = Math.floor(now.getTime() / (currentMode * 1000));
+// 5. Signal Engine
+function showSignalUI() {
+    document.getElementById('deposit-view').style.display = 'none';
+    document.getElementById('signal-view').style.display = 'block';
+    
+    startAI();
+}
 
-        if (remains <= 5) {
+function startAI() {
+    setInterval(() => {
+        const now = new Date();
+        const sec = now.getSeconds();
+        const remains = 60 - sec;
+        
+        // Update Circle Progress
+        const offset = 208 - (208 * remains / 60);
+        document.getElementById('timer-progress').style.strokeDashoffset = offset;
+        document.getElementById('timer-val').innerText = remains;
+
+        if (remains > 55 || remains < 2) {
             document.getElementById('result-text').innerText = "WAITING";
-            document.getElementById('result-text').style.color = "#aaa";
-        } else {
-            if (blockId !== lastBlockId) {
-                lastBlockId = blockId;
-                generateSmartSignal(blockId);
-            }
+            document.getElementById('lucky-num').innerText = "---";
+        } else if (remains === 55) {
+            generatePrediction();
         }
-
-        document.getElementById('timer-val').innerText = remains.toString().padStart(2, '0');
-        const progress = (remains / currentMode) * 100;
-        document.getElementById('wave-progress').style.width = progress + "%";
-
     }, 1000);
 }
 
-function generateSmartSignal(id) {
+function generatePrediction() {
+    const isBig = Math.random() > 0.5;
     const resText = document.getElementById('result-text');
-    const luckyNum = document.getElementById('lucky-num');
-    
-    // AI Algorithm
-    const seed = (id * 9301 + 49297) % 233280;
-    const rand = seed / 233280;
-    
-    const isBig = rand > 0.5;
     resText.innerText = isBig ? "BIG" : "SMALL";
-    resText.style.color = isBig ? "#00f2ff" : "#ff00f7";
+    resText.style.color = isBig ? "#00d2ff" : "#ff3e3e";
     
-    if(isBig) {
-        luckyNum.innerText = "5, 7, 8, 9";
-    } else {
-        luckyNum.innerText = "0, 1, 2, 4";
-    }
+    const nums = isBig ? "5, 6, 7, 8, 9" : "0, 1, 2, 3, 4";
+    document.getElementById('lucky-num').innerText = "LUCKY: " + nums;
 }
+
+// 6. Draggable Logic
+const dragZone = document.getElementById('drag-zone');
+const box = document.getElementById('main-box');
+let isMoving = false, px = 0, py = 0;
+
+dragZone.onmousedown = (e) => {
+    isMoving = true;
+    px = e.clientX - box.offsetLeft;
+    py = e.clientY - box.offsetTop;
+};
+
+document.onmousemove = (e) => {
+    if(!isMoving) return;
+    box.style.left = (e.clientX - px) + "px";
+    box.style.top = (e.clientY - py) + "px";
+};
+
+document.onmouseup = () => isMoving = false;
