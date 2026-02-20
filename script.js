@@ -1,130 +1,152 @@
-const CONFIG = {
-    key: "RKXRAKIB",
-    wingoUrl: "https://tkclub2.com/#/home/AllLotteryGames/WinGo?id=1",
-    depositUrl: "https://tkclub2.com/#/wallet/Recharge"
-};
+const KEY_VAL = "RKXRAKIB";
+const URL_WINGO = "https://tkclub2.com/#/home/AllLotteryGames/WinGo?id=1";
+const URL_DEPOSIT = "https://tkclub2.com/#/wallet/Recharge";
 
-// --- AUTH LOGIC ---
+// --- PERSISTENCE (LOGIN CHECK) ---
 window.onload = function() {
-    const saved = localStorage.getItem('serverKey');
-    const expiry = localStorage.getItem('keyExpiry');
+    const savedKey = localStorage.getItem('userKey');
+    const expiry = localStorage.getItem('keyExpire');
     
-    if (saved === CONFIG.key && expiry > Date.now()) {
-        showView('deposit-view');
+    if (savedKey === KEY_VAL && expiry > Date.now()) {
+        switchView('view-deposit');
     }
 };
 
-function handleAuth() {
-    const input = document.getElementById('passKey').value;
-    const isRemember = document.getElementById('recommendKey').checked;
+function performLogin() {
+    const entered = document.getElementById('input-key').value;
+    const isRemember = document.getElementById('check-recommend').checked;
 
-    if (input === CONFIG.key) {
+    if (entered === KEY_VAL) {
         if (isRemember) {
-            localStorage.setItem('serverKey', CONFIG.key);
-            localStorage.setItem('keyExpiry', Date.now() + (24 * 60 * 60 * 1000));
+            localStorage.setItem('userKey', KEY_VAL);
+            localStorage.setItem('keyExpire', Date.now() + (24 * 60 * 60 * 1000)); // 24 Hours
         }
-        showView('deposit-view');
+        switchView('view-deposit');
     } else {
-        alert("ACCESS DENIED: WRONG SERVER KEY");
+        alert("ACCESS DENIED! INVALID KEY.");
     }
 }
 
-function showView(viewId) {
-    document.getElementById('login-view').style.display = 'none';
-    document.getElementById('deposit-view').style.display = 'none';
-    document.getElementById('display-area').style.display = 'none';
-    document.getElementById(viewId).style.display = 'block';
+function switchView(id) {
+    document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
 }
 
-// --- NAVIGATION ---
-function togglePanel(show) {
-    document.getElementById('main-box').style.display = show ? 'block' : 'none';
-    document.getElementById('mini-logo').style.display = show ? 'none' : 'block';
+// --- MINIMIZE/MAXIMIZE ---
+function minimizeBox() {
+    document.getElementById('ai-box').style.display = 'none';
+    document.getElementById('mini-profile').style.display = 'block';
 }
 
-function openDeposit() {
-    document.getElementById('game-frame').src = CONFIG.depositUrl;
+function maximizeBox() {
+    document.getElementById('ai-box').style.display = 'block';
+    document.getElementById('mini-profile').style.display = 'none';
 }
 
-function verifyDep() {
-    alert("Scanning Blockchain Status... Syncing AI Server.");
+// --- DEPOSIT & START ---
+function goToDeposit() {
+    document.getElementById('game-frame').src = URL_DEPOSIT;
+}
+
+function verifyAndStart() {
+    alert("VERIFYING TRANSACTION... SYNCING AI SERVER.");
     setTimeout(() => {
-        document.getElementById('game-frame').src = CONFIG.wingoUrl;
-        showView('display-area');
-        startEngine();
-    }, 2000);
+        document.getElementById('game-frame').src = URL_WINGO;
+        switchView('view-signal');
+        initSignalEngine();
+    }, 2500);
 }
 
-// --- DRAG LOGIC (FIXED) ---
-const box = document.getElementById('main-box');
-const dragZone = document.getElementById('drag-zone');
-let isDragging = false;
-let startX, startY, initialLeft, initialTop;
+// --- DRAG LOGIC (RELIABLE METHOD) ---
+const box = document.getElementById("ai-box");
+const header = document.getElementById("ai-header");
 
-const startDragging = (e) => {
-    if (e.target.closest('button')) return;
-    isDragging = true;
-    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-    
-    startX = clientX;
-    startY = clientY;
-    initialLeft = box.offsetLeft;
-    initialTop = box.offsetTop;
-};
+let active = false;
+let currentX;
+let currentY;
+let initialX;
+let initialY;
+let xOffset = 0;
+let yOffset = 0;
 
-const dragging = (e) => {
-    if (!isDragging) return;
-    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-    
-    const dx = clientX - startX;
-    const dy = clientY - startY;
-    
-    box.style.left = (initialLeft + dx) + 'px';
-    box.style.top = (initialTop + dy) + 'px';
-};
+header.addEventListener("touchstart", dragStart, false);
+document.addEventListener("touchend", dragEnd, false);
+document.addEventListener("touchmove", drag, false);
 
-const stopDragging = () => isDragging = false;
+header.addEventListener("mousedown", dragStart, false);
+document.addEventListener("mouseup", dragEnd, false);
+document.addEventListener("mousemove", drag, false);
 
-dragZone.addEventListener('mousedown', startDragging);
-document.addEventListener('mousemove', dragging);
-document.addEventListener('mouseup', stopDragging);
+function dragStart(e) {
+    if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+    } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+    }
+    if (e.target === header || header.contains(e.target)) {
+        active = true;
+    }
+}
 
-dragZone.addEventListener('touchstart', startDragging, {passive: false});
-document.addEventListener('touchmove', dragging, {passive: false});
-document.addEventListener('touchend', stopDragging);
+function dragEnd() {
+    initialX = currentX;
+    initialY = currentY;
+    active = false;
+}
 
-// --- SIGNAL ENGINE ---
-let lastId = -1;
-let pred = { res: "---", n: "--", c: "#fff" };
+function drag(e) {
+    if (active) {
+        e.preventDefault();
+        if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+        } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+        }
+        xOffset = currentX;
+        yOffset = currentY;
+        setTranslate(currentX, currentY, box);
+    }
+}
 
-function startEngine() {
+function setTranslate(xPos, yPos, el) {
+    el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+}
+
+// --- AI SIGNAL ENGINE ---
+let lastBId = -1;
+let cachePred = { r: "---", n: "--", c: "#fff" };
+
+function initSignalEngine() {
     setInterval(() => {
         const sec = new Date().getSeconds();
         const remains = 30 - (sec % 30);
-        const bId = Math.floor(Date.now() / 30000);
+        const blockId = Math.floor(Date.now() / 30000);
 
         if (remains >= 27) {
-            document.getElementById('result-text').innerText = "WAITING";
-            document.getElementById('period-label').innerText = "FETCHING DATA...";
+            document.getElementById('signal-res').innerText = "WAITING";
+            document.getElementById('signal-res').style.color = "#fff";
+            document.getElementById('period-text').innerText = "SYNCING MARKET DATA...";
         } else {
-            if (bId !== lastId) {
-                lastId = bId;
-                let seed = (bId * 12345) % 100;
-                let isBig = seed > 45;
-                pred = {
-                    res: isBig ? "BIG" : "SMALL",
-                    n: isBig ? "6 & 8" : "1 & 3",
+            if (blockId !== lastBId) {
+                lastBId = blockId;
+                let seed = (blockId * 7) % 100;
+                let isBig = seed > 48;
+                cachePred = {
+                    r: isBig ? "BIG" : "SMALL",
+                    n: isBig ? "5, 7, 8" : "1, 2, 4",
                     c: isBig ? "#00d2ff" : "#ff00f7"
                 };
             }
-            document.getElementById('result-text').innerText = pred.res;
-            document.getElementById('result-text').style.color = pred.c;
-            document.getElementById('lucky-num').innerText = "LUCKY: " + pred.n;
-            document.getElementById('period-label').innerText = "WINGO SIGNAL";
+            document.getElementById('signal-res').innerText = cachePred.r;
+            document.getElementById('signal-res').style.color = cachePred.c;
+            document.getElementById('signal-nums').innerText = "LUCKY: " + cachePred.n;
+            document.getElementById('period-text').innerText = "WINGO 30S PREDICTION";
         }
-        document.getElementById('timer-val').innerText = remains;
-        document.getElementById('wave-progress').style.width = (remains / 30) * 100 + "%";
+        document.getElementById('t-sec').innerText = remains;
+        document.getElementById('progress-fill').style.width = (remains / 30) * 100 + "%";
     }, 1000);
 }
