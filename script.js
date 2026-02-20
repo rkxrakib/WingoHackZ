@@ -1,127 +1,128 @@
 const CONFIG = {
     key: "RKXRAKIB",
-    depositUrl: "https://tkclub2.com/#/wallet/Recharge",
-    wingoUrl: "https://tkclub2.com/#/home/AllLotteryGames/WinGo?id=1"
+    wingoUrl: "https://tkclub2.com/#/home/AllLotteryGames/WinGo?id=1",
+    depositUrl: "https://tkclub2.com/#/wallet/Recharge"
 };
 
-let isVerified = false;
-
-// 1. Toggle Panel (Minimize/Maximize)
-function togglePanel(show) {
-    const mainBox = document.getElementById('main-box');
-    const miniLogo = document.getElementById('mini-logo');
+// 1. Persistence Logic (Remember Key)
+window.onload = () => {
+    const savedKey = localStorage.getItem('serverKey');
+    const expiry = localStorage.getItem('keyExpiry');
     
-    if(show) {
-        mainBox.style.display = 'block';
-        mainBox.style.opacity = '1';
-        mainBox.style.transform = 'scale(1) translateX(0)';
-        miniLogo.style.display = 'none';
-    } else {
-        mainBox.style.opacity = '0';
-        mainBox.style.transform = 'scale(0) translateX(-100px)';
-        setTimeout(() => {
-            mainBox.style.display = 'none';
-            miniLogo.style.display = 'flex';
-        }, 300);
+    if (savedKey === CONFIG.key && expiry > Date.now()) {
+        document.getElementById('login-view').style.display = 'none';
+        document.getElementById('deposit-view').style.display = 'block';
     }
-}
+};
 
-// 2. Authentication
-function checkAuth() {
-    const key = document.getElementById('passKey').value;
-    if(key === CONFIG.key) {
-        document.getElementById('auth-view').style.display = 'none';
+function handleAuth() {
+    const keyInput = document.getElementById('passKey').value;
+    const isRemember = document.getElementById('recommendKey').checked;
+
+    if (keyInput === CONFIG.key) {
+        if (isRemember) {
+            localStorage.setItem('serverKey', CONFIG.key);
+            localStorage.setItem('keyExpiry', Date.now() + (24 * 60 * 60 * 1000)); // 24 Hours
+        }
+        document.getElementById('login-view').style.display = 'none';
         document.getElementById('deposit-view').style.display = 'block';
     } else {
-        alert("ACCESS DENIED: WRONG SERVER KEY");
+        alert("ACCESS DENIED!");
     }
 }
 
-// 3. Deposit Inside Same Iframe
-function openDepositInside() {
-    const frame = document.getElementById('game-frame');
-    frame.src = CONFIG.depositUrl;
-    alert("Please deposit minimum 500 BDT. After payment, enter your User ID or Txn ID here to verify.");
+// 2. Navigation & UI
+function togglePanel(show) {
+    document.getElementById('main-box').style.display = show ? 'block' : 'none';
+    document.getElementById('mini-logo').style.display = show ? 'none' : 'block';
 }
 
-// 4. Real-Look Verification System
-function verifyDeposit() {
-    const txn = document.getElementById('txnId').value;
-    if(txn.length < 5) {
-        alert("Please enter a valid Transaction ID or User ID");
-        return;
-    }
+function openDeposit() {
+    document.getElementById('game-frame').src = CONFIG.depositUrl;
+}
 
-    document.querySelector('.deposit-box').style.display = 'none';
-    document.getElementById('verify-loader').style.display = 'block';
-
-    // Simulate Server Verification
+function verifyDep() {
+    alert("Scanning Blockchain... Please wait 3 seconds.");
     setTimeout(() => {
-        // Logic: Here you can connect a real API. For now, it's a simulated "Success"
-        isVerified = true;
-        document.getElementById('verify-loader').innerHTML = "<p style='color:#00ff88'>DEPOSIT VERIFIED! REDIRECTING...</p>";
-        
-        setTimeout(() => {
-            const frame = document.getElementById('game-frame');
-            frame.src = CONFIG.wingoUrl;
-            showSignalUI();
-        }, 2000);
-    }, 4000);
+        document.getElementById('game-frame').src = CONFIG.wingoUrl;
+        document.getElementById('deposit-view').style.display = 'none';
+        document.getElementById('display-area').style.display = 'block';
+        initAIServer();
+    }, 3000);
 }
 
-// 5. Signal Engine
-function showSignalUI() {
-    document.getElementById('deposit-view').style.display = 'none';
-    document.getElementById('signal-view').style.display = 'block';
-    
-    startAI();
-}
+// 3. Original Signal Engine (30s Logic)
+let lastBlockId = -1;
+let currentPrediction = { res: "---", nums: "--", color: "#fff" };
 
-function startAI() {
+function initAIServer() {
     setInterval(() => {
         const now = new Date();
         const sec = now.getSeconds();
-        const remains = 60 - sec;
-        
-        // Update Circle Progress
-        const offset = 208 - (208 * remains / 60);
-        document.getElementById('timer-progress').style.strokeDashoffset = offset;
-        document.getElementById('timer-val').innerText = remains;
+        const timeframe = 30; // 30s original logic
+        const remains = timeframe - (sec % timeframe);
+        const blockId = Math.floor(now.getTime() / (timeframe * 1000));
 
-        if (remains > 55 || remains < 2) {
-            document.getElementById('result-text').innerText = "WAITING";
-            document.getElementById('lucky-num').innerText = "---";
-        } else if (remains === 55) {
-            generatePrediction();
+        const resultText = document.getElementById('result-text');
+        
+        if (remains >= 27) {
+            resultText.innerText = "WAITING";
+            document.getElementById('period-label').innerText = "SCANNING DATA";
+        } else {
+            if (blockId !== lastBlockId) {
+                lastBlockId = blockId;
+                runAnalysis(blockId);
+            }
+            resultText.innerText = currentPrediction.res;
+            resultText.style.color = currentPrediction.color;
+            document.getElementById('lucky-num').innerText = currentPrediction.nums;
+            document.getElementById('period-label').innerText = "WINGO SIGNAL";
         }
+
+        document.getElementById('timer-val').innerText = remains;
+        document.getElementById('wave-progress').style.width = (remains / timeframe) * 100 + "%";
     }, 1000);
 }
 
-function generatePrediction() {
-    const isBig = Math.random() > 0.5;
-    const resText = document.getElementById('result-text');
-    resText.innerText = isBig ? "BIG" : "SMALL";
-    resText.style.color = isBig ? "#00d2ff" : "#ff3e3e";
+function runAnalysis(blockId) {
+    let seed = (blockId * 0x7FFFFFFF) % 1234567;
+    let res = (seed % 10) > 4 ? "BIG" : "SMALL";
     
-    const nums = isBig ? "5, 6, 7, 8, 9" : "0, 1, 2, 3, 4";
-    document.getElementById('lucky-num').innerText = "LUCKY: " + nums;
+    currentPrediction.res = res;
+    if (res === "BIG") {
+        currentPrediction.color = "#00d2ff";
+        currentPrediction.nums = (5 + (seed % 5)) + " & " + (5 + ((seed+2) % 5));
+    } else {
+        currentPrediction.color = "#ff00f7";
+        currentPrediction.nums = (seed % 5) + " & " + ((seed+3) % 5);
+    }
 }
 
-// 6. Draggable Logic
-const dragZone = document.getElementById('drag-zone');
+// 4. Compact Drag Logic
 const box = document.getElementById('main-box');
-let isMoving = false, px = 0, py = 0;
+const handle = document.getElementById('drag-handle');
+let isDrag = false, offset = [0,0];
 
-dragZone.onmousedown = (e) => {
-    isMoving = true;
-    px = e.clientX - box.offsetLeft;
-    py = e.clientY - box.offsetTop;
+handle.onmousedown = (e) => {
+    isDrag = true;
+    offset = [box.offsetLeft - e.clientX, box.offsetTop - e.clientY];
 };
-
 document.onmousemove = (e) => {
-    if(!isMoving) return;
-    box.style.left = (e.clientX - px) + "px";
-    box.style.top = (e.clientY - py) + "px";
+    if (!isDrag) return;
+    box.style.left = (e.clientX + offset[0]) + 'px';
+    box.style.top = (e.clientY + offset[1]) + 'px';
+    box.style.transform = 'none';
 };
+document.onmouseup = () => isDrag = false;
 
-document.onmouseup = () => isMoving = false;
+// Touch for Mobile
+handle.ontouchstart = (e) => {
+    isDrag = true;
+    offset = [box.offsetLeft - e.touches[0].clientX, box.offsetTop - e.touches[0].clientY];
+};
+document.ontouchmove = (e) => {
+    if (!isDrag) return;
+    box.style.left = (e.touches[0].clientX + offset[0]) + 'px';
+    box.style.top = (e.touches[0].clientY + offset[1]) + 'px';
+};
+document.ontouchend = () => isDrag = false;
