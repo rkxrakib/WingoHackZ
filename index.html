@@ -8,52 +8,56 @@
 </head>
 <body oncontextmenu="return false;">
 
+    <!-- Game Background -->
     <iframe id="game-frame" src="https://tkclub2.com/#/register?invitationCode=84445206479"></iframe>
 
-    <!-- Mini Profile (Minimized State) -->
-    <div id="mini-logo" onclick="togglePanel(true)">
-        <img src="https://t.me/i/userpic/320/Xdengers.svg" alt="AI">
+    <!-- Mini Profile (যখন ক্লোজ করবেন) -->
+    <div id="mini-profile" onclick="maximizeBox()">
+        <img src="https://t.me/i/userpic/320/Xdengers.svg" alt="Admin">
     </div>
 
     <!-- Main Predictor Box -->
-    <div id="main-box" class="glass-box">
-        <div class="drag-handle" id="drag-zone">
-            <div class="header-left">
-                <span class="live-dot"></span>
-                <span class="title-text">SURESHOT AI</span>
+    <div id="ai-box">
+        <div id="ai-header">
+            <div class="header-info">
+                <span class="status-dot"></span>
+                <span class="title">SURESHOT AI</span>
             </div>
-            <button class="close-btn" onclick="togglePanel(false)">×</button>
+            <button class="close-btn" onclick="minimizeBox()">×</button>
         </div>
 
-        <div class="panel-content">
+        <div class="ai-body">
             <!-- Phase 1: Login -->
-            <div id="login-view" class="view">
-                <input type="password" id="passKey" class="input-field" placeholder="SERVER KEY">
-                <div class="rem-row">
-                    <input type="checkbox" id="recommendKey"> <label for="recommendKey">Recommend Key</label>
+            <div id="view-login" class="view">
+                <p class="guide">ENTER PRIVATE ACCESS KEY</p>
+                <input type="password" id="input-key" placeholder="••••••••">
+                <div class="remember-row">
+                    <input type="checkbox" id="check-recommend"> 
+                    <label for="check-recommend">Recommend Key</label>
                 </div>
-                <button class="action-btn blue" onclick="handleAuth()">CONNECT SERVER</button>
+                <button class="primary-btn" onclick="performLogin()">CONNECT SERVER</button>
             </div>
 
-            <!-- Phase 2: Deposit -->
-            <div id="deposit-view" class="view" style="display: none;">
-                <p class="status-msg">SERVER STATUS: <span style="color:#ff3e3e">LOCKED</span></p>
-                <button class="action-btn gold" onclick="openDeposit()">RECHARGE 500 BDT</button>
-                <button class="action-btn" onclick="verifyDep()">VERIFY SYNC</button>
+            <!-- Phase 2: Deposit Gate -->
+            <div id="view-deposit" class="view" style="display:none;">
+                <p class="warn-msg">DEPOSIT 500 BDT TO ACTIVATE</p>
+                <button class="gold-btn" onclick="goToDeposit()">RECHARGE NOW</button>
+                <button class="verify-btn" onclick="verifyAndStart()">VERIFY PAYMENT</button>
             </div>
 
-            <!-- Phase 3: Signal -->
-            <div id="display-area" class="view" style="display: none;">
-                <div class="info-label" id="period-label">WAITING...</div>
-                <div id="result-text">---</div>
-                <div class="num-tag" id="lucky-num">SCANNING</div>
+            <!-- Phase 3: Signal Interface -->
+            <div id="view-signal" class="view" style="display:none;">
+                <div class="mode-tag">WINGO 30S AI</div>
+                <div id="period-text">ANALYZING...</div>
+                <div id="signal-res">---</div>
+                <div id="signal-nums">WAITING</div>
                 
-                <div class="timer-section">
-                    <span class="next-txt">NEXT:</span>
-                    <span id="timer-val">30</span><span class="s-unit">S</span>
+                <div class="timer-wrap">
+                    <span class="t-label">NEXT:</span>
+                    <span id="t-sec">30</span>S
+                    <div class="progress-bar"><div id="progress-fill"></div></div>
                 </div>
-                <div class="bar-bg"><div class="bar-fill" id="wave-progress"></div></div>
-                <div class="server-active">● SECURE CONNECTION</div>
+                <div class="server-msg">SERVER: ENCRYPTED</div>
             </div>
         </div>
     </div>
