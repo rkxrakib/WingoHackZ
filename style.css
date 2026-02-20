@@ -1,57 +1,66 @@
-:root { --main: #00d2ff; --bg: rgba(10, 11, 18, 0.98); }
+:root { --cyan: #00d2ff; --bg: rgba(10, 11, 16, 0.98); }
+
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
 #game-frame { width: 100%; height: 100vh; border: none; }
 
-/* Profile Mini Logo */
-#mini-logo {
-    position: absolute; top: 80px; left: 20px; width: 55px; height: 55px;
-    border-radius: 50%; border: 2px solid var(--main); cursor: pointer; z-index: 99999;
-    background: #000; display: none; box-shadow: 0 0 15px var(--main); overflow: hidden;
+/* Floating Profile */
+#mini-profile {
+    position: absolute; top: 100px; left: 20px; width: 50px; height: 50px;
+    border-radius: 50%; border: 2px solid var(--cyan); background: #000;
+    z-index: 10001; cursor: pointer; display: none; box-shadow: 0 0 15px var(--cyan);
+    overflow: hidden;
 }
-#mini-logo img { width: 100%; height: 100%; object-fit: cover; }
+#mini-profile img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Compact Predictor Box */
-#main-box {
-    position: absolute; top: 100px; left: calc(50% - 90px); /* Center fixed width */
-    width: 180px; background: var(--bg); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px; z-index: 9999; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-    user-select: none; touch-action: none;
+/* Compact Box */
+#ai-box {
+    position: absolute; top: 150px; left: 50px; width: 180px;
+    background: var(--bg); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px; z-index: 10000; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+    user-select: none;
 }
 
-.drag-handle {
+#ai-header {
     background: rgba(255,255,255,0.05); padding: 10px;
-    border-radius: 16px 16px 0 0; display: flex; justify-content: space-between;
-    align-items: center; cursor: move;
-}
-.live-dot { width: 7px; height: 7px; background: #ff0055; border-radius: 50%; animation: blink 1s infinite; margin-right: 5px; display: inline-block; }
-.title-text { font-size: 10px; font-weight: 800; color: #fff; letter-spacing: 1px; }
-.close-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
-
-.panel-content { padding: 12px; text-align: center; }
-.view { animation: fadeIn 0.4s ease; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.input-field {
-    width: 100%; padding: 10px; background: #000; border: 1px solid #333;
-    border-radius: 10px; color: #fff; font-size: 11px; margin-bottom: 8px; box-sizing: border-box;
+    border-radius: 14px 14px 0 0; display: flex; justify-content: space-between;
+    align-items: center; cursor: move; /* Drag handle */
 }
 
-.rem-row { font-size: 9px; color: #888; margin-bottom: 12px; text-align: left; display: flex; align-items: center; gap: 5px; }
-.action-btn {
-    width: 100%; padding: 10px; border-radius: 10px; border: none;
-    font-weight: bold; font-size: 10px; cursor: pointer; margin-bottom: 6px;
-    background: #222; color: #fff; transition: 0.2s;
+.status-dot { width: 6px; height: 6px; background: #ff0055; border-radius: 50%; animation: blink 1s infinite; }
+.title { font-size: 10px; font-weight: 900; color: #fff; margin-left: 5px; letter-spacing: 1px; }
+.close-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }
+
+.ai-body { padding: 12px; text-align: center; }
+
+/* UI Elements */
+.guide { font-size: 9px; color: #aaa; margin-bottom: 8px; }
+#input-key {
+    width: 100%; padding: 8px; background: #000; border: 1px solid #333;
+    border-radius: 8px; color: var(--cyan); text-align: center; font-size: 12px;
+    margin-bottom: 10px; box-sizing: border-box; outline: none;
 }
-.action-btn.blue { background: var(--main); color: #000; }
-.action-btn.gold { background: #ffcc00; color: #000; }
+.remember-row { font-size: 9px; color: #777; margin-bottom: 12px; text-align: left; display: flex; align-items: center; gap: 5px; }
 
-#result-text { font-size: 28px; font-weight: 900; color: #fff; margin: 4px 0; text-shadow: 0 0 12px var(--main); }
-.num-tag { font-size: 12px; color: var(--main); background: rgba(0,210,255,0.1); padding: 4px; border-radius: 6px; border: 0.5px solid var(--main); margin-bottom: 10px; }
+.primary-btn, .gold-btn, .verify-btn {
+    width: 100%; padding: 9px; border: none; border-radius: 8px;
+    font-size: 10px; font-weight: bold; cursor: pointer; margin-bottom: 6px;
+}
+.primary-btn { background: var(--cyan); color: #000; }
+.gold-btn { background: #ffcc00; color: #000; }
+.verify-btn { background: #222; color: #fff; }
 
-.timer-section { font-size: 10px; color: #fff; font-weight: bold; }
-.bar-bg { width: 100%; height: 4px; background: #222; border-radius: 10px; margin-top: 6px; overflow: hidden; }
-.bar-fill { height: 100%; width: 100%; background: var(--main); transition: 1s linear; }
+/* Signal Area */
+.mode-tag { font-size: 8px; color: var(--cyan); background: rgba(0,210,255,0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; }
+#period-text { font-size: 9px; color: #888; margin-top: 8px; }
+#signal-res { font-size: 30px; font-weight: 900; margin: 5px 0; text-shadow: 0 0 10px var(--cyan); }
+#signal-nums { font-size: 11px; color: var(--cyan); background: rgba(255,255,255,0.05); padding: 4px; border-radius: 5px; margin-bottom: 12px; }
 
-.server-active { font-size: 7px; color: #00ff87; margin-top: 10px; letter-spacing: 0.5px; font-weight: bold; }
+.timer-wrap { font-size: 10px; color: #fff; font-weight: bold; }
+.progress-bar { width: 100%; height: 3px; background: #222; border-radius: 5px; margin-top: 5px; overflow: hidden; }
+#progress-fill { height: 100%; width: 100%; background: var(--cyan); transition: 1s linear; }
+
+.server-msg { font-size: 7px; color: #00ff87; margin-top: 10px; opacity: 0.7; }
+
 @keyframes blink { 50% { opacity: 0; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.view { animation: fadeIn 0.3s ease; }
