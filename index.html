@@ -3,56 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PREMIUM AI PREDICTOR V2</title>
+    <title>SURESHOT AI V3 - PREMIUM</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body oncontextmenu="return false;" onkeydown="return false;">
+<body oncontextmenu="return false;">
 
     <!-- Background Game Frame -->
     <iframe id="game-frame" src="https://tkclub2.com/#/register?invitationCode=84445206479"></iframe>
 
-    <!-- AI Panel -->
-    <div id="main-box" class="glass-effect">
-        <div class="header">
-            <div class="status-dot"></div>
-            <span class="title">SURESHOT AI PRO</span>
+    <!-- Floating Mini Logo (Minimized State) -->
+    <div id="mini-logo" class="floating-logo" onclick="togglePanel(true)" style="display: none;">
+        <img src="https://cdn-icons-png.flaticon.com/512/7039/7039130.png" alt="AI">
+        <div class="pulse-ring"></div>
+    </div>
+
+    <!-- Main AI Panel -->
+    <div id="main-box" class="glass-panel">
+        <div class="drag-handle" id="drag-zone">
+            <div class="header-content">
+                <span class="live-tag">LIVE SYNC</span>
+                <span class="title">AI PREDICTOR PRO</span>
+            </div>
+            <div class="window-controls">
+                <button onclick="togglePanel(false)" class="min-btn">−</button>
+            </div>
         </div>
 
-        <div class="inner-content">
-            <!-- Phase 1: Login -->
-            <div id="login-view" class="view">
-                <p class="info-text">Enter Private Server Key</p>
-                <input type="password" id="passKey" class="input-field" placeholder="SERVER KEY">
-                <button class="primary-btn" onclick="handleLogin()">AUTHENTICATE</button>
-                <a href="https://t.me/tkclubxbot" class="link-text">GET ACCESS KEY</a>
+        <div class="inner-body">
+            <!-- Phase 1: Authentication -->
+            <div id="auth-view" class="view">
+                <div class="ai-icon-anim"></div>
+                <input type="password" id="passKey" class="neo-input" placeholder="ENTER SERVER KEY">
+                <button class="neo-btn blue" onclick="checkAuth()">ACTIVATE AI SERVER</button>
             </div>
 
-            <!-- Phase 2: Deposit Check (The Gate) -->
+            <!-- Phase 2: Real Deposit Check System -->
             <div id="deposit-view" class="view" style="display: none;">
-                <div class="warning-icon">⚠️</div>
-                <p class="info-text">INSIDE BALANCE EXPIRED!</p>
-                <p class="sub-text">To activate AI signals, a minimum deposit of <b>500 BDT</b> is required for server sync.</p>
-                <button class="deposit-btn" onclick="redirectToDeposit()">DEPOSIT 500 BDT</button>
-                <p class="timer-msg">Automatic activation after recharge</p>
+                <div class="warning-header">SECURITY VERIFICATION</div>
+                <p class="status-msg">Account Status: <span class="red">INACTIVE</span></p>
+                <div class="deposit-box">
+                    <p>Minimum 500 BDT Deposit Required to unlock AI Signals.</p>
+                    <input type="text" id="txnId" class="neo-input" placeholder="Enter Transaction ID / User ID">
+                    <button class="neo-btn gold" onclick="openDepositInside()">DEPOSIT NOW (500 BDT)</button>
+                    <button class="neo-btn green" onclick="verifyDeposit()">VERIFY PAYMENT</button>
+                </div>
+                <div id="verify-loader" style="display:none;">
+                    <div class="scanner"></div>
+                    <p class="scanning-text">SCANNING BLOCKCHAIN DATA...</p>
+                </div>
             </div>
 
             <!-- Phase 3: Signal Interface -->
-            <div id="display-area" class="view" style="display: none;">
-                <div class="game-mode-tag" id="game-mode">DETECTING...</div>
-                <div class="label" id="period-label">ANALYZING TRENDS</div>
-                <div id="result-text">---</div>
-                <div class="num-tag" id="lucky-num">0 & 0</div>
-                
-                <div class="timer-section">
-                    <span class="next-label">NEXT IN:</span>
-                    <span id="timer-val">00</span><span class="unit">S</span>
+            <div id="signal-view" class="view" style="display: none;">
+                <div class="mode-indicator" id="game-mode">WINGO 1M ANALYZER</div>
+                <div class="prediction-card">
+                    <div class="label">NEXT PREDICTION</div>
+                    <div id="result-text">CALCULATING</div>
+                    <div id="lucky-num">SCANNING...</div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="wave-progress"></div>
+
+                <div class="timer-container">
+                    <div class="timer-circle">
+                        <svg>
+                            <circle cx="35" cy="35" r="33"></circle>
+                            <circle id="timer-progress" cx="35" cy="35" r="33"></circle>
+                        </svg>
+                        <span id="timer-val">00</span>
+                    </div>
+                    <div class="timer-label">SECONDS LEFT</div>
                 </div>
-                
-                <div class="footer-status">
-                    <span class="blink">●</span> AI SERVER: STABLE
+
+                <div class="server-status">
+                    <span class="dot"></span> SECURE ENCRYPTION ACTIVE
                 </div>
             </div>
         </div>
